@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
 
 
+//Need to finish and test
+
 @RestController
 public class AuthController {
 
