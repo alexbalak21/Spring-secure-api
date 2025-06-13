@@ -1,5 +1,6 @@
 package app.config;
 
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -9,7 +10,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -34,54 +34,79 @@ public class SecurityConfig {
 
     private final RsaKeyProperties rsaKeys;
 
+    // Constructor to inject RSA key properties for JWT
     public SecurityConfig(RsaKeyProperties rsaKeyProperties) {
         this.rsaKeys = rsaKeyProperties;
     }
 
+    /**
+     * Defines an in-memory user details service that stores users.
+     * Here, we create a user named "alex" with a hashed password.
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return new InMemoryUserDetailsManager(
                 User.withUsername("alex")
-                        .password(passwordEncoder().encode("azerty123")) // Use BCrypt for security
-                        .roles("USER")
+                        .password(passwordEncoder().encode("azerty123")) // Encrypts password using BCrypt
+                        .roles("USER") // Assigns a role to the user
                         .build()
         );
     }
 
+    /**
+     * Configures the security filter chain:
+     * - Disables CSRF (useful for REST APIs)
+     * - Requires authentication for all requests
+     * - Enables JWT-based authentication
+     * - Uses stateless sessions (suitable for APIs)
+     * - Enables Basic Authentication
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .httpBasic(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection for stateless API requests
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // Requires authentication for all endpoints
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Configures JWT authentication
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disables session storage (stateless authentication)
+                .httpBasic(Customizer.withDefaults()) // Enables Basic Authentication (username/password)
                 .build();
     }
 
+    /**
+     * Creates an AuthenticationManager using the UserDetailsService and password encoder.
+     * This manager is responsible for authenticating users.
+     */
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService); // Uses the defined userDetailsService
+        authProvider.setPasswordEncoder(passwordEncoder()); // Ensures passwords are encoded for security
 
-        return new ProviderManager(authProvider);
+        return new ProviderManager(authProvider); // Returns the authentication manager
     }
 
+    /**
+     * Defines the password encoder for hashing passwords.
+     * BCrypt is a strong password hashing algorithm that prevents dictionary attacks.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * JWT Decoder - responsible for decoding JWT tokens using RSA public key.
+     * This ensures the tokens provided to users are verified properly.
+     */
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
+    /**
+     * JWT Encoder - responsible for generating JWT tokens using RSA private key.
+     * This allows the system to create secure, signed tokens that clients can use for authentication.
+     */
     @Bean
     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
