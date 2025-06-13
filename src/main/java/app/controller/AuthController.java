@@ -3,6 +3,8 @@ package app.controller;
 import app.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -19,5 +21,13 @@ public class AuthController {
     public AuthController(TokenService tokenService) {
         this.tokenService = tokenService;
     }
-    //https://www.youtube.com/watch?v=KYNR5js2cXE&t=1923s
+
+    @GetMapping("/token")
+    public String token(Authentication authentication) {
+        LOGGER.debug("Token request for {}", authentication.getName());
+        String token = tokenService.generateToken(authentication);
+        LOGGER.debug("Token granted: {}", token);
+        return token;
+
+    }
 }
