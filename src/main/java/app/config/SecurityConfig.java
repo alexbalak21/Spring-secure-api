@@ -1,6 +1,5 @@
 package app.config;
 
-
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -56,19 +55,20 @@ public class SecurityConfig {
     /**
      * Configures the security filter chain:
      * - Disables CSRF (useful for REST APIs)
-     * - Requires authentication for all requests
-     * - Enables JWT-based authentication
-     * - Uses stateless sessions (suitable for APIs)
-     * - Enables Basic Authentication
+     * - Requires authentication for all requests (except login)
+     * - Uses JWT-based authentication
+     * - Makes sessions stateless
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection for stateless API requests
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // Requires authentication for all endpoints
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Configures JWT authentication
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disables session storage (stateless authentication)
-                .httpBasic(Customizer.withDefaults()) // Enables Basic Authentication (username/password)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").permitAll() // Allows login without authentication
+                        .anyRequest().authenticated() // Protects all other endpoints
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Makes authentication stateless
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Enables JWT authentication
                 .build();
     }
 
@@ -79,10 +79,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Uses the defined userDetailsService
-        authProvider.setPasswordEncoder(passwordEncoder()); // Ensures passwords are encoded for security
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
 
-        return new ProviderManager(authProvider); // Returns the authentication manager
+        return new ProviderManager(authProvider);
     }
 
     /**
