@@ -3,5 +3,5 @@ Accept: application/json
 
 
 ### BASIC AUTH
-GET localhost:8080/token
-Authorization: Basic YWxleC5wYXNzd29yZA==
+POST localhost:8080/token
+Authorization: Basic YWxleDpwYXNzd29yZA==
