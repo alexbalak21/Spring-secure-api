@@ -1,43 +1,43 @@
-2025-06-15 21:24:23 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-06-15 21:24:23 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@57b825dc
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@55f3b226
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-06-15 21:24:23 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /
-2025-06-15 21:24:23 [http-nio-8080-exec-1] INFO  app.security.JwtRevocationFilter - 🔹 Incoming request: /
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@d862fdac, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=127.0.0.1, SessionId=null], Granted Authorities=[SCOPE_ROLE_USER]]
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/", parameters={}
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.HomeController#home(Principal)
-2025-06-15 21:24:23 [http-nio-8080-exec-1] INFO  app.controller.HomeController - ✅ Accessing home endpoint. Authenticated user: alex
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{username=alex, message=Welcome to the API}]
-2025-06-15 21:24:23 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
-2025-06-15 21:24:25 [http-nio-8080-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/logout
-2025-06-15 21:24:25 [http-nio-8080-exec-2] DEBUG o.s.s.w.a.logout.LogoutFilter - Logging out [null]
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - 🔹 Processing logout request...
-2025-06-15 21:24:25 [http-nio-8080-exec-2] WARN  app.config.SecurityConfig - ⚠️ No authentication found, attempting manual extraction.
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Authentication manually set for logout: alex
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - 🔹 Logging out user: alex
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.service.TokenService - 🔹 Attempting to revoke token: org.springframework.security.oauth2.jwt.Jwt@d862fdac
-2025-06-15 21:24:25 [http-nio-8080-exec-2] WARN  app.service.TokenService - ❌ Token successfully added to blacklist: org.springframework.security.oauth2.jwt.Jwt@d862fdac
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Token successfully revoked: org.springframework.security.oauth2.jwt.Jwt@d862fdac
-2025-06-15 21:24:25 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Logout completed successfully.
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /
-2025-06-15 21:24:28 [http-nio-8080-exec-3] INFO  app.security.JwtRevocationFilter - 🔹 Incoming request: /
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@d862fdac, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=127.0.0.1, SessionId=null], Granted Authorities=[SCOPE_ROLE_USER]]
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/", parameters={}
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.HomeController#home(Principal)
-2025-06-15 21:24:28 [http-nio-8080-exec-3] INFO  app.controller.HomeController - ✅ Accessing home endpoint. Authenticated user: alex
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{username=alex, message=Welcome to the API}]
-2025-06-15 21:24:28 [http-nio-8080-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
-2025-06-15 21:27:46 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2025-06-15 21:27:46 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-15 21:28:52 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-15 21:28:52 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-15 21:28:52 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2025-06-15 21:28:52 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-06-15 21:28:52 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2025-06-15 21:28:52 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@78015b45
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@754cb732
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-06-15 21:28:53 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 6 ms
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /
+2025-06-15 21:28:53 [http-nio-8080-exec-1] INFO  app.security.JwtRevocationFilter - 🔹 Incoming request: /
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@d862fdac, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=127.0.0.1, SessionId=null], Granted Authorities=[SCOPE_ROLE_USER]]
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - GET "/", parameters={}
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.HomeController#home(Principal)
+2025-06-15 21:28:53 [http-nio-8080-exec-1] INFO  app.controller.HomeController - ✅ Accessing home endpoint. Authenticated user: alex
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{username=alex, message=Welcome to the API}]
+2025-06-15 21:28:53 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-06-15 21:28:56 [http-nio-8080-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/logout
+2025-06-15 21:28:56 [http-nio-8080-exec-2] DEBUG o.s.s.w.a.logout.LogoutFilter - Logging out [null]
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - 🔹 Processing logout request...
+2025-06-15 21:28:56 [http-nio-8080-exec-2] WARN  app.config.SecurityConfig - ⚠️ No authentication found, attempting manual extraction.
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Authentication manually set for logout: alex
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - 🔹 Logging out user: alex
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.service.TokenService - 🔹 Attempting to revoke token: org.springframework.security.oauth2.jwt.Jwt@d862fdac
+2025-06-15 21:28:56 [http-nio-8080-exec-2] WARN  app.service.TokenService - ❌ Token successfully added to blacklist: org.springframework.security.oauth2.jwt.Jwt@d862fdac
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Token successfully revoked: org.springframework.security.oauth2.jwt.Jwt@d862fdac
+2025-06-15 21:28:56 [http-nio-8080-exec-2] INFO  app.config.SecurityConfig - ✅ Logout completed successfully.
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /
+2025-06-15 21:28:59 [http-nio-8080-exec-3] INFO  app.security.JwtRevocationFilter - 🔹 Incoming request: /
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@d862fdac, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=127.0.0.1, SessionId=null], Granted Authorities=[SCOPE_ROLE_USER]]
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - GET "/", parameters={}
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.HomeController#home(Principal)
+2025-06-15 21:28:59 [http-nio-8080-exec-3] INFO  app.controller.HomeController - ✅ Accessing home endpoint. Authenticated user: alex
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{username=alex, message=Welcome to the API}]
+2025-06-15 21:28:59 [http-nio-8080-exec-3] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-06-15 21:31:12 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-15 21:31:12 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete

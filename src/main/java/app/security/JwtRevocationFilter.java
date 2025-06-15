@@ -34,6 +34,13 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
         String requestPath = request.getRequestURI().toLowerCase();
         LOGGER.info("🔹 Incoming request: {}", requestPath);
 
+        // ✅ Skip token revocation checks for ignored endpoints
+        if (ignoredEndpoints.contains(requestPath)) {
+            LOGGER.debug("✅ Skipping revocation check for ignored endpoint: {}", requestPath);
+            chain.doFilter(request, response);
+            return;
+        }
+
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
@@ -46,17 +53,18 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
         LOGGER.info("🔹 Checking revocation status for token: {}", tokenValue);
 
         boolean revoked = tokenService.isTokenRevoked(tokenValue);
-        LOGGER.debug("🔹 Revocation check result -> Token: {}, Revoked: {}", tokenValue, revoked);
+        boolean expired = tokenService.isTokenExpired(tokenValue);
+        LOGGER.debug("🔹 Revocation/Expiration check -> Token: {}, Revoked: {}, Expired: {}", tokenValue, revoked, expired);
 
-        if (revoked) {
-            LOGGER.warn("❌ Token revoked: Blocking request - {}", tokenValue);
-            LOGGER.error("🚨 SECURITY ALERT: Revoked token {} attempted access!", tokenValue);
+        if (revoked || expired) {
+            LOGGER.warn("❌ Token revoked or expired: Blocking request - {}", tokenValue);
+            LOGGER.error("🚨 SECURITY ALERT: Invalid token {} attempted access!", tokenValue);
 
             SecurityContextHolder.clearContext(); // ✅ Ensure authentication is removed BEFORE responding
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"Token has been revoked\"}");
+            response.getWriter().write("{\"error\":\"Token is invalid or has been revoked\"}");
             response.getWriter().flush();
 
             return; // ✅ Stops further request processing BEFORE Spring Security runs authentication
