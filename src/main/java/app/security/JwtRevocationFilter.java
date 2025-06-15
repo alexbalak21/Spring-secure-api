@@ -23,47 +23,46 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
 
     public JwtRevocationFilter(TokenService tokenService, Set<String> ignoredEndpoints) {
         this.tokenService = tokenService;
-        // Ensure ignored endpoints are treated in a case-insensitive manner
         this.ignoredEndpoints = ignoredEndpoints.stream()
                 .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()); // Ensures case-insensitive matching
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
         String requestPath = request.getRequestURI().toLowerCase();
-        LOGGER.debug("Request received at path: {}", requestPath);
+        LOGGER.info("🔹 Incoming request: {}", requestPath);
 
-        // Skip token revocation checks for ignored endpoints (e.g., "/login", "/register")
+        // ✅ Skip token revocation checks for ignored endpoints
         if (ignoredEndpoints.contains(requestPath)) {
-            LOGGER.debug("Skipping token revocation check for ignored endpoint: {}", requestPath);
+            LOGGER.info("✅ Skipping revocation check for ignored endpoint: {}", requestPath);
             chain.doFilter(request, response);
             return;
         }
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // If no authentication token is found, proceed without blocking
+        // ✅ If no authentication token is found, proceed
         if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
-            LOGGER.debug("No JWT token found, allowing request to proceed");
+            LOGGER.warn("⚠️ No JWT token found, allowing request to proceed.");
             chain.doFilter(request, response);
             return;
         }
 
         String tokenValue = jwtToken.getToken().getTokenValue();
-        LOGGER.debug("Checking revocation status for token: {}", tokenValue);
+        LOGGER.info("🔹 Checking revocation status for token: {}", tokenValue);
 
-        // Block requests if the token has been revoked
+        // ✅ Block requests if the token has been revoked
         if (tokenService.isTokenRevoked(tokenValue)) {
-            LOGGER.warn("Blocked request: Token has been revoked - {}", tokenValue);
+            LOGGER.warn("❌ Token revoked: Blocking request - {}", tokenValue);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Token has been revoked\"}");
             return;
         }
 
-        LOGGER.debug("Token is valid, proceeding with request");
+        LOGGER.info("✅ Token is valid, allowing request to proceed.");
         chain.doFilter(request, response);
     }
 }
