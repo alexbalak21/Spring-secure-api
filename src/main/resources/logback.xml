@@ -20,13 +20,13 @@
         </encoder>
     </appender>
 
-    <!-- Root Logger Configuration -->
-    <root level="INFO">
+    <!-- Root Logger Configuration (Only DEBUG and ERROR) -->
+    <root level="ERROR">  <!-- Prevent INFO logs from being recorded -->
         <appender-ref ref="CONSOLE"/> <!-- Logs to console -->
         <appender-ref ref="FILE"/> <!-- Logs to file -->
     </root>
 
-    <!-- Enable DEBUG logs for Spring Security -->
+    <!-- Enable DEBUG logs for specific packages -->
     <logger name="org.springframework.security" level="DEBUG"/>
     <logger name="org.springframework.web" level="DEBUG"/>
 

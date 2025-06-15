@@ -77,13 +77,22 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/logout").permitAll() // FIXED: Ensure login is accessible
+                        .requestMatchers("/auth/login", "/auth/logout").permitAll() // Ensure auth endpoints are accessible
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .formLogin(Customizer.withDefaults()) // FIXED: Enable username/password authentication
-                .logout(logout -> logout.logoutUrl("/auth/logout").permitAll()) // Explicit logout handling
+                .formLogin(Customizer.withDefaults()) // Enable username/password authentication
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout") // Explicitly set logout URL
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(200); // FIX: Prevent redirect
+                            response.getWriter().write("{\"message\": \"Logged out successfully\"}");
+                            response.setContentType("application/json");
+                            LOGGER.info("User successfully logged out");
+                        })
+                        .permitAll()
+                )
                 .build();
     }
 
