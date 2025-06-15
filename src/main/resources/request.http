@@ -33,7 +33,7 @@ Authorization: Basic YWxleDpwYXNzd29yZA==
 
 
 ### POST LOGIN
-POST localhost:8080/login
+POST localhost:8080/auth/login
 Content-Type: application/json
 
 {

@@ -9,9 +9,12 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,6 +39,7 @@ import java.util.Set;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
     private final RsaKeyProperties rsaKeys;
 
     public SecurityConfig(RsaKeyProperties rsaKeyProperties) {
@@ -48,6 +52,8 @@ public class SecurityConfig {
      */
     @Bean
     public UserDetailsService userDetailsService() {
+        LOGGER.info("Initializing in-memory user store...");
+
         return new InMemoryUserDetailsManager(
                 User.withUsername("alex")
                         .password(passwordEncoder().encode("azerty123"))
@@ -59,33 +65,40 @@ public class SecurityConfig {
     /**
      * Configures security rules for HTTP requests:
      * - Disables CSRF (useful for stateless REST APIs).
-     * - Allows unrestricted access to "/login" and "/logout".
+     * - Allows unrestricted access to "/auth/login" and "/auth/logout".
      * - Requires authentication for all other requests.
      * - Enables JWT authentication.
      * - Ensures sessions are stateless (no server-side sessions).
-     * - Adds a custom JWT revocation filter to block revoked tokens.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService) throws Exception {
+        LOGGER.info("Configuring security filter chain...");
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/logout").permitAll() // Ensure login is accessible
+                        .requestMatchers("/auth/login", "/auth/logout").permitAll() // FIXED: Ensure login is accessible
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .addFilterBefore(new JwtRevocationFilter(tokenService, Set.of("/login", "/register")), BearerTokenAuthenticationFilter.class)
-                .logout(logout -> logout.logoutUrl("/logout").permitAll()) // Explicit logout handling
+                .formLogin(Customizer.withDefaults()) // FIXED: Enable username/password authentication
+                .logout(logout -> logout.logoutUrl("/auth/logout").permitAll()) // Explicit logout handling
                 .build();
     }
 
     /**
-     * Configures the AuthenticationManager using a custom authentication provider.
+     * Configures the AuthenticationManager using a DAO provider.
      */
     @Bean
-    public AuthenticationManager authenticationManager(CustomJwtAuthenticationProvider jwtAuthProvider) {
-        return new ProviderManager(jwtAuthProvider);
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        LOGGER.info("Initializing AuthenticationManager...");
+
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(authProvider);
     }
 
     /**
@@ -102,6 +115,7 @@ public class SecurityConfig {
      */
     @Bean
     JwtDecoder jwtDecoder() {
+        LOGGER.info("Initializing JWT Decoder...");
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
@@ -110,6 +124,7 @@ public class SecurityConfig {
      */
     @Bean
     JwtEncoder jwtEncoder() {
+        LOGGER.info("Initializing JWT Encoder...");
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwkSource);
