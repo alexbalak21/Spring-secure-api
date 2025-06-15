@@ -32,21 +32,16 @@ public class CustomJwtAuthenticationProvider implements AuthenticationProvider {
         }
 
         String tokenValue = jwtToken.getToken().getTokenValue();
-        LOGGER.info("🔹 Attempting authentication for token: {}", tokenValue);
+        LOGGER.info("🔹 Authenticating token: {}", tokenValue);
 
-        // ✅ Log revocation check before authentication attempt
         boolean revoked = tokenService.isTokenRevoked(tokenValue);
-        LOGGER.debug("🔹 Revocation status -> Token: {}, Revoked: {}", tokenValue, revoked);
+        LOGGER.debug("🔹 Revocation check -> Token: {}, Revoked: {}", tokenValue, revoked);
 
-        // ✅ Strictly enforce blacklist BEFORE authentication
         if (revoked) {
             LOGGER.warn("❌ Authentication blocked: Token has been revoked - {}", tokenValue);
             LOGGER.error("🚨 SECURITY ALERT: Revoked token {} attempted authentication!", tokenValue);
 
-            // ✅ Clear authentication context before rejecting the request
-            SecurityContextHolder.clearContext();
-            LOGGER.debug("🔹 SecurityContextHolder cleared for revoked token: {}", tokenValue);
-
+            SecurityContextHolder.clearContext(); // ✅ Ensure authentication removal before rejection
             throw new BadCredentialsException("Token has been revoked");
         }
 
