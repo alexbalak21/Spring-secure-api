@@ -2,13 +2,16 @@ package app.controller;
 
 import app.dto.LoginRequest;
 import app.service.TokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -67,15 +70,27 @@ public class AuthController {
     /**
      * Handles user logout and revokes the JWT token.
      */
-    @PostMapping("/logout")
-    public Map<String, String> logout(@RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7); // Remove "Bearer " prefix
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request, @RequestHeader("Authorization") String authHeader) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            LOGGER.warn("Logout request received, but no authentication found");
+        } else {
+            LOGGER.info("Logging out user: {}", authentication.getName());
         }
 
-        tokenService.revokeToken(token);
-        LOGGER.info("Token revoked successfully");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            LOGGER.warn("Logout request missing a valid Authorization header");
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid logout request"));
+        }
 
-        return Map.of("message", "Logged out successfully");
+        String token = authHeader.substring(7); // Extract token
+        LOGGER.info("Revoking token: {}", token);
+        tokenService.revokeToken(token); // Blacklist token
+
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
+
+
 }

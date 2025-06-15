@@ -1,5 +1,7 @@
 package app.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class TokenService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
     private final JwtEncoder jwtEncoder;
     private final Set<String> revokedTokens = ConcurrentHashMap.newKeySet(); // Thread-safe blacklist
 
@@ -44,7 +47,9 @@ public class TokenService {
                 .claim("scope", scope)
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        LOGGER.info("Access token generated for user: {}", authentication.getName());
+        return token;
     }
 
     /**
@@ -61,15 +66,22 @@ public class TokenService {
                 .claim("type", "refresh")
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims)).getTokenValue();
+        String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims)).getTokenValue();
+        LOGGER.info("Refresh token generated for user: {}", authentication.getName());
+        return refreshToken;
     }
 
     /**
      * Revokes a token, adding it to the blacklist.
      */
     public void revokeToken(String token) {
+        LOGGER.info("Calling revokeToken with token: {}", token);
         if (token != null && !token.isEmpty()) {
+            LOGGER.warn("Revoking token: {}", token); // Added logging
             revokedTokens.add(token);
+            LOGGER.info("Token added to blacklist: {}", token);
+        } else {
+            LOGGER.warn("Attempted to revoke an empty or null token");
         }
     }
 
@@ -77,7 +89,9 @@ public class TokenService {
      * Checks if a token has been revoked.
      */
     public boolean isTokenRevoked(String token) {
-        return token != null && revokedTokens.contains(token);
+        boolean revoked = token != null && revokedTokens.contains(token);
+        LOGGER.debug("Checking if token is revoked: {} -> {}", token, revoked);
+        return revoked;
     }
 
     /**
@@ -85,13 +99,17 @@ public class TokenService {
      */
     public boolean isTokenExpired(Jwt jwt) {
         Instant expirationTime = jwt.getExpiresAt();
-        return expirationTime == null || expirationTime.isBefore(Instant.now());
+        boolean expired = expirationTime == null || expirationTime.isBefore(Instant.now());
+        LOGGER.debug("Checking if token is expired: {} -> {}", jwt.getTokenValue(), expired);
+        return expired;
     }
 
     /**
      * Validates a token by checking both expiration and revocation status.
      */
     public boolean isTokenValid(Jwt jwt) {
-        return !isTokenExpired(jwt) && !isTokenRevoked(jwt.getTokenValue());
+        boolean valid = !isTokenExpired(jwt) && !isTokenRevoked(jwt.getTokenValue());
+        LOGGER.debug("Checking if token is valid: {} -> {}", jwt.getTokenValue(), valid);
+        return valid;
     }
 }
