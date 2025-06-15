@@ -56,16 +56,15 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
         // ✅ Strictly block revoked tokens before proceeding
         if (tokenService.isTokenRevoked(tokenValue)) {
             LOGGER.warn("❌ Token revoked: Blocking request - {}", tokenValue);
+            SecurityContextHolder.clearContext(); // ✅ Clears authentication before sending response
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Token has been revoked\"}");
-            response.getWriter().flush(); // Ensure immediate response
-            SecurityContextHolder.clearContext(); // ✅ Clears authentication context to fully revoke access
-            LOGGER.error("❌ Token {} was rejected. Response sent with 401 Unauthorized.", tokenValue);
-            return;
+            response.getWriter().flush(); // ✅ Ensure immediate response before Spring Security authenticates
+            return; // ✅ Stops further request processing
         }
 
-        LOGGER.debug("✅ Token is valid, allowing request to proceed.");
+        LOGGER.info("✅ Token is valid, allowing request to proceed.");
         chain.doFilter(request, response);
     }
 }
