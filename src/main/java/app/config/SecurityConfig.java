@@ -79,17 +79,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .formLogin(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Ensure JWT authentication
+                .addFilterBefore(new JwtRevocationFilter(tokenService, Set.of("/auth/login", "/auth/logout")), BearerTokenAuthenticationFilter.class) // Ensure authentication is processed before logout
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .addLogoutHandler((request, response, authentication) -> {
-                            if (authentication != null) {
-                                LOGGER.info("Logout handler processing user: {}", authentication.getName());
-                            } else {
-                                LOGGER.warn("Logout handler: No authentication found");
-                            }
-                        })
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(200);
                             response.getWriter().write("{\"message\": \"Logged out successfully\"}");

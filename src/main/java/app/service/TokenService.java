@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,13 +18,15 @@ public class TokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder; // Added JwtDecoder for validation
     private final Set<String> revokedTokens = ConcurrentHashMap.newKeySet(); // Thread-safe blacklist
 
     private static final int ACCESS_TOKEN_EXPIRATION_MINUTES = 60; // 1 hour
     private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 7; // 7 days
 
-    public TokenService(JwtEncoder jwtEncoder) {
+    public TokenService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) { // Inject JwtDecoder
         this.jwtEncoder = jwtEncoder;
+        this.jwtDecoder = jwtDecoder;
     }
 
     /**
@@ -75,9 +74,8 @@ public class TokenService {
      * Revokes a token, adding it to the blacklist.
      */
     public void revokeToken(String token) {
-        LOGGER.info("Calling revokeToken with token: {}", token);
+        LOGGER.info("Revoking token: {}", token);
         if (token != null && !token.isEmpty()) {
-            LOGGER.warn("Revoking token: {}", token); // Added logging
             revokedTokens.add(token);
             LOGGER.info("Token added to blacklist: {}", token);
         } else {
@@ -95,21 +93,27 @@ public class TokenService {
     }
 
     /**
-     * Checks if a token has expired.
+     * Decodes JWT and validates if it's expired.
      */
-    public boolean isTokenExpired(Jwt jwt) {
-        Instant expirationTime = jwt.getExpiresAt();
-        boolean expired = expirationTime == null || expirationTime.isBefore(Instant.now());
-        LOGGER.debug("Checking if token is expired: {} -> {}", jwt.getTokenValue(), expired);
-        return expired;
+    public boolean isTokenExpired(String token) {
+        try {
+            Jwt jwt = jwtDecoder.decode(token);
+            Instant expirationTime = jwt.getExpiresAt();
+            boolean expired = expirationTime == null || expirationTime.isBefore(Instant.now());
+            LOGGER.debug("Checking if token is expired: {} -> {}", token, expired);
+            return expired;
+        } catch (JwtException e) {
+            LOGGER.warn("Failed to decode token: {}", e.getMessage());
+            return true; // Treat invalid JWTs as expired
+        }
     }
 
     /**
      * Validates a token by checking both expiration and revocation status.
      */
-    public boolean isTokenValid(Jwt jwt) {
-        boolean valid = !isTokenExpired(jwt) && !isTokenRevoked(jwt.getTokenValue());
-        LOGGER.debug("Checking if token is valid: {} -> {}", jwt.getTokenValue(), valid);
+    public boolean isTokenValid(String token) {
+        boolean valid = !isTokenExpired(token) && !isTokenRevoked(token);
+        LOGGER.debug("Checking if token is valid: {} -> {}", token, valid);
         return valid;
     }
 }

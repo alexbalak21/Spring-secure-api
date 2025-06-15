@@ -3,17 +3,19 @@ package app.controller;
 import app.dto.LoginRequest;
 import app.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,11 +28,14 @@ public class AuthController {
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final JwtDecoder jwtDecoder; // FIXED: Inject JwtDecoder
 
-    public AuthController(TokenService tokenService, AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+    public AuthController(TokenService tokenService, AuthenticationManager authenticationManager,
+                          UserDetailsService userDetailsService, JwtDecoder jwtDecoder) { // Modified Constructor
         this.tokenService = tokenService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.jwtDecoder = jwtDecoder; // FIXED: Assign JwtDecoder
     }
 
     /**
@@ -52,7 +57,6 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
             String token = tokenService.generateAccessToken(authentication);
 
             LOGGER.info("Token generated successfully for user: {}", loginRequest.getUsername());
@@ -70,27 +74,37 @@ public class AuthController {
     /**
      * Handles user logout and revokes the JWT token.
      */
-    @PostMapping("/auth/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request, @RequestHeader("Authorization") String authHeader) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null) {
-            LOGGER.warn("Logout request received, but no authentication found");
-        } else {
-            LOGGER.info("Logging out user: {}", authentication.getName());
-        }
-
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             LOGGER.warn("Logout request missing a valid Authorization header");
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid logout request"));
         }
 
         String token = authHeader.substring(7); // Extract token
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            LOGGER.warn("Logout request received, but no authentication found - manually extracting");
+
+            try {
+                Jwt decodedJwt = jwtDecoder.decode(token);
+                authentication = new JwtAuthenticationToken(decodedJwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                LOGGER.info("Manually set authentication for user: {}", authentication.getName());
+            } catch (Exception e) {
+                LOGGER.warn("Failed to decode token: {}", e.getMessage());
+                return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+            }
+        }
+
+        LOGGER.info("Logging out user: {}", authentication.getName());
+
         LOGGER.info("Revoking token: {}", token);
         tokenService.revokeToken(token); // Blacklist token
 
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
-
 
 }

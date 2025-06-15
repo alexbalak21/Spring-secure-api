@@ -1,13 +1,76 @@
-2025-06-15 17:48:16 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-06-15 17:48:16 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@2552c11
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@2afae3e5
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
-2025-06-15 17:48:16 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 9 ms
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/logout
-2025-06-15 17:48:16 [http-nio-8080-exec-1] DEBUG o.s.s.w.a.logout.LogoutFilter - Logging out [null]
-2025-06-15 17:48:16 [http-nio-8080-exec-1] WARN  app.config.SecurityConfig - Logout handler: No authentication found
-2025-06-15 17:48:16 [http-nio-8080-exec-1] INFO  app.config.SecurityConfig - User successfully logged out
+2025-06-15 18:09:12 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-15 18:09:12 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@57b825dc
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@55f3b226
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-06-15 18:09:12 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/logout
+2025-06-15 18:09:12 [http-nio-8080-exec-1] DEBUG o.s.s.w.a.logout.LogoutFilter - Logging out [null]
+2025-06-15 18:09:12 [http-nio-8080-exec-1] WARN  app.config.SecurityConfig - Logout handler: No authentication found
+2025-06-15 18:09:12 [http-nio-8080-exec-1] INFO  app.config.SecurityConfig - User successfully logged out
+2025-06-15 18:11:25 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-15 18:11:26 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-15 18:12:31 [main] INFO  app.Application - Starting Application using Java 23 with PID 9012 (F:\DEV\Spring-secure-api\target\classes started by ALEX in F:\DEV\Spring-secure-api)
+2025-06-15 18:12:31 [main] INFO  app.Application - No active profile set, falling back to 1 default profile: "default"
+2025-06-15 18:12:34 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-15 18:12:34 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-15 18:12:34 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-15 18:12:34 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-15 18:12:34 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-15 18:12:34 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2978 ms
+2025-06-15 18:12:34 [main] INFO  app.config.SecurityConfig - Initializing JWT Encoder...
+2025-06-15 18:12:34 [main] INFO  app.config.SecurityConfig - Initializing JWT Decoder...
+2025-06-15 18:12:34 [main] INFO  app.config.SecurityConfig - Initializing in-memory user store...
+2025-06-15 18:12:35 [main] INFO  app.config.SecurityConfig - Initializing AuthenticationManager...
+2025-06-15 18:12:35 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 6 mappings in 'requestMappingHandlerMapping'
+2025-06-15 18:12:35 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2025-06-15 18:12:35 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name customJwtAuthenticationProvider
+2025-06-15 18:12:35 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-06-15 18:12:35 [main] DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtRevocationFilter, BearerTokenAuthenticationFilter, AuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-06-15 18:12:35 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-06-15 18:12:35 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-06-15 18:12:36 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-15 18:12:36 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-15 18:12:36 [main] INFO  app.Application - Started Application in 5.58 seconds (process running for 7.372)
+2025-06-15 18:12:48 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-15 18:12:48 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@3707c324
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@34d8c9b6
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-06-15 18:12:48 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 7 ms
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /profile
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.s.o.jwt.JwtTimestampValidator - Jwt expired at 2025-06-15T16:10:38Z
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Failed to authenticate since the JWT was invalid
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.s.authentication.ProviderManager - Authentication failed with provider JwtAuthenticationProvider since An error occurred while attempting to decode the Jwt: Jwt expired at 2025-06-15T16:10:38Z
+2025-06-15 18:12:48 [http-nio-8080-exec-1] DEBUG o.s.s.authentication.ProviderManager - Denying authentication since all attempted providers failed
+2025-06-15 18:12:55 [http-nio-8080-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/login
+2025-06-15 18:12:55 [http-nio-8080-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-06-15 18:12:55 [http-nio-8080-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured POST /auth/login
+2025-06-15 18:12:55 [http-nio-8080-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - POST "/auth/login", parameters={}
+2025-06-15 18:12:55 [http-nio-8080-exec-2] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.AuthController#login(LoginRequest)
+2025-06-15 18:12:56 [http-nio-8080-exec-2] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json;charset=UTF-8" to [app.dto.LoginRequest@60d30a62]
+2025-06-15 18:12:56 [http-nio-8080-exec-2] INFO  app.controller.AuthController - Login request for user: alex
+2025-06-15 18:12:56 [http-nio-8080-exec-2] DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2025-06-15 18:12:56 [http-nio-8080-exec-2] INFO  app.service.TokenService - Access token generated for user: alex
+2025-06-15 18:12:56 [http-nio-8080-exec-2] INFO  app.controller.AuthController - Token generated successfully for user: alex
+2025-06-15 18:12:56 [http-nio-8080-exec-2] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-06-15 18:12:56 [http-nio-8080-exec-2] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{token=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWxleCIsImV4cCI6MTc1MDAwNzU3NiwiaWF0IjoxNzUw (truncated)...]
+2025-06-15 18:12:56 [http-nio-8080-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /profile
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@ef163b18, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=127.0.0.1, SessionId=null], Granted Authorities=[SCOPE_ROLE_USER]]
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /profile
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - GET "/profile", parameters={}
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to app.controller.HomeController#profile()
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [*/*] and supported [application/json, application/*+json]
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [{iss=self, sub=alex, exp=2025-06-15T17:12:56Z, iat=2025-06-15T16:12:56Z, scope=ROLE_USER}]
+2025-06-15 18:14:04 [http-nio-8080-exec-5] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-06-15 18:14:07 [http-nio-8080-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/logout
+2025-06-15 18:14:07 [http-nio-8080-exec-6] DEBUG o.s.s.w.a.logout.LogoutFilter - Logging out [null]
+2025-06-15 18:14:07 [http-nio-8080-exec-6] INFO  app.config.SecurityConfig - User successfully logged out
