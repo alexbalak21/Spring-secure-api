@@ -60,13 +60,13 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
             LOGGER.warn("❌ Token revoked or expired: Blocking request - {}", tokenValue);
             LOGGER.error("🚨 SECURITY ALERT: Invalid token {} attempted access!", tokenValue);
 
-            SecurityContextHolder.clearContext(); // ✅ Ensure authentication is removed BEFORE responding
+            SecurityContextHolder.clearContext(); // ✅ Ensure authentication removal BEFORE responding
+            request.setAttribute("TOKEN_INVALID", true); // ✅ Mark request as blocked for security layers
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Token is invalid or has been revoked\"}");
             response.getWriter().flush();
-
             return; // ✅ Stops further request processing BEFORE Spring Security runs authentication
         }
 
