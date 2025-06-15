@@ -13,4 +13,10 @@ public class HomeController {
     public Map<String, String> home(Principal principal) {
         return Map.of("message", "Welcome to the API", "username", principal.getName());
     }
+
+    @GetMapping("/profile")
+    public String profile(Principal principal) {
+        System.out.println(principal);
+        return principal.toString();
+    }
 }
