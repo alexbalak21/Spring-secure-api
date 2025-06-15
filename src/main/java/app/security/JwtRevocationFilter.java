@@ -53,9 +53,15 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
         String tokenValue = jwtToken.getToken().getTokenValue();
         LOGGER.info("🔹 Checking revocation status for token: {}", tokenValue);
 
+        // ✅ Log revocation check for full debugging
+        boolean revoked = tokenService.isTokenRevoked(tokenValue);
+        LOGGER.debug("🔹 Revocation check result -> Token: {}, Revoked: {}", tokenValue, revoked);
+
         // ✅ Strictly block revoked tokens before proceeding
-        if (tokenService.isTokenRevoked(tokenValue)) {
+        if (revoked) {
             LOGGER.warn("❌ Token revoked: Blocking request - {}", tokenValue);
+            LOGGER.error("🚨 SECURITY ALERT: Revoked token {} attempted access!", tokenValue);
+
             SecurityContextHolder.clearContext(); // ✅ Clears authentication before sending response
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
@@ -64,7 +70,7 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
             return; // ✅ Stops further request processing
         }
 
-        LOGGER.info("✅ Token is valid, allowing request to proceed.");
+        LOGGER.debug("✅ Token is valid, allowing request to proceed.");
         chain.doFilter(request, response);
     }
 }

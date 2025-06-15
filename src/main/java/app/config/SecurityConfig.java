@@ -27,8 +27,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
@@ -42,18 +42,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        LOGGER.info("🔹 Initializing in-memory user store...");
-        return new InMemoryUserDetailsManager(
-                User.withUsername("alex")
-                        .password(passwordEncoder().encode("azerty123"))
-                        .roles("USER")
-                        .build()
-        );
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService) throws Exception {
+        LOGGER.info("🔹 Configuring security filters...");
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
@@ -62,20 +53,22 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .addFilterBefore(new JwtRevocationFilter(tokenService, Set.of("/auth/login", "/auth/logout")), BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(new JwtRevocationFilter(tokenService, Set.of("/auth/login", "/auth/logout")),
+                        BearerTokenAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
                             LOGGER.info("🔹 Processing logout request...");
 
                             if (authentication == null) {
-                                LOGGER.warn("⚠️ Logout handler: No authentication found. Trying manual extraction...");
+                                LOGGER.warn("⚠️ No authentication found, attempting manual extraction.");
                                 String authHeader = request.getHeader("Authorization");
                                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                                     String token = authHeader.substring(7);
                                     try {
                                         Jwt decodedJwt = jwtDecoder().decode(token);
                                         authentication = new JwtAuthenticationToken(decodedJwt);
+                                        SecurityContextHolder.getContext().setAuthentication(authentication);
                                         LOGGER.info("✅ Authentication manually set for logout: {}", authentication.getName());
                                     } catch (Exception e) {
                                         LOGGER.error("❌ Failed to decode token: {}", e.getMessage());
@@ -90,12 +83,13 @@ public class SecurityConfig {
                                     tokenService.revokeToken(token);
                                     LOGGER.info("✅ Token successfully revoked: {}", token);
                                 } else {
-                                    LOGGER.warn("❌ Token already revoked: {}", token);
+                                    LOGGER.warn("❌ Token was already revoked: {}", token);
                                 }
-                                SecurityContextHolder.clearContext(); // ✅ Ensures full logout
+                                SecurityContextHolder.clearContext(); // ✅ Ensure full logout
                             }
                         })
                         .logoutSuccessHandler((request, response, authentication) -> {
+                            LOGGER.info("✅ Logout completed successfully.");
                             response.setStatus(HttpServletResponse.SC_OK);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"message\": \"Logged out successfully\"}");
@@ -109,9 +103,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         LOGGER.info("🔹 Initializing AuthenticationManager...");
 
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(); // Deprecated DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService); // Deprecated setUserDetailsService()
-        authProvider.setPasswordEncoder(passwordEncoder);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder);
+        authProvider.setUserDetailsService(userDetailsService);
 
         return new ProviderManager(List.of(authProvider));
     }

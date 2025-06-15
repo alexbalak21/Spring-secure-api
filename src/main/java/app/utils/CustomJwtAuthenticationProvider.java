@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -31,16 +32,21 @@ public class CustomJwtAuthenticationProvider implements AuthenticationProvider {
         }
 
         String tokenValue = jwtToken.getToken().getTokenValue();
-        LOGGER.info("🔹 Checking authentication for token: {}", tokenValue);
+        LOGGER.info("🔹 Attempting authentication for token: {}", tokenValue);
 
-        // ✅ Log revocation check status before authentication
+        // ✅ Log revocation check before authentication attempt
         boolean revoked = tokenService.isTokenRevoked(tokenValue);
-        LOGGER.debug("🔹 Revocation check -> Token: {}, Revoked: {}", tokenValue, revoked);
+        LOGGER.debug("🔹 Revocation status -> Token: {}, Revoked: {}", tokenValue, revoked);
 
-        // ✅ Enforce blacklist check BEFORE authentication succeeds
+        // ✅ Strictly enforce blacklist BEFORE authentication
         if (revoked) {
             LOGGER.warn("❌ Authentication blocked: Token has been revoked - {}", tokenValue);
-            LOGGER.error("🚨 Security Alert: Revoked token {} tried to authenticate!", tokenValue);
+            LOGGER.error("🚨 SECURITY ALERT: Revoked token {} attempted authentication!", tokenValue);
+
+            // ✅ Clear authentication context before rejecting the request
+            SecurityContextHolder.clearContext();
+            LOGGER.debug("🔹 SecurityContextHolder cleared for revoked token: {}", tokenValue);
+
             throw new BadCredentialsException("Token has been revoked");
         }
 
