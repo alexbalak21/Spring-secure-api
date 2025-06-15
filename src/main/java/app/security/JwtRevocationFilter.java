@@ -60,6 +60,7 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Token has been revoked\"}");
             response.getWriter().flush(); // Ensure response is written immediately
+            LOGGER.error("❌ Token {} was rejected. Response sent with 401 Unauthorized.", tokenValue);
             return;
         }
 
