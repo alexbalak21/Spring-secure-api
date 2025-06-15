@@ -37,38 +37,59 @@ public class SecurityConfig {
 
     private final RsaKeyProperties rsaKeys;
 
+    // Inject RSA key properties for JWT handling
     public SecurityConfig(RsaKeyProperties rsaKeyProperties) {
         this.rsaKeys = rsaKeyProperties;
     }
 
+    /**
+     * Defines an in-memory user store with a single user.
+     * The password is hashed using BCrypt for security.
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return new InMemoryUserDetailsManager(
-                User.withUsername("alex")
-                        .password(passwordEncoder().encode("azerty123"))
-                        .roles("USER")
+                User.withUsername("alex") // Username
+                        .password(passwordEncoder().encode("azerty123")) // Hashed password
+                        .roles("USER") // Assigns role "USER"
                         .build()
         );
     }
 
+    /**
+     * Configures security rules for HTTP requests.
+     * - Disables CSRF (useful for stateless REST APIs)
+     * - Allows unrestricted access to "/login"
+     * - Requires authentication for all other requests
+     * - Enables JWT authentication
+     * - Makes sessions stateless (no server-side sessions)
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/login").permitAll() // Allow unauthenticated access to "/login"
+                        .anyRequest().authenticated() // Require authentication for all other endpoints
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make authentication stateless
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Enable JWT-based authentication
                 .build();
     }
 
+    /**
+     * Creates an AuthenticationManager using a custom AuthenticationProvider.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationProvider authenticationProvider) {
         return new ProviderManager(authenticationProvider);
     }
 
+    /**
+     * Custom AuthenticationProvider implementation.
+     * - Validates username & password
+     * - Checks password using BCrypt
+     */
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         return new AuthenticationProvider() {
@@ -77,11 +98,14 @@ public class SecurityConfig {
                 String username = authentication.getName();
                 String password = authentication.getCredentials().toString();
 
+                // Retrieve user details
                 UserDetails user = userDetailsService.loadUserByUsername(username);
+
+                // Verify password using BCrypt
                 if (user != null && passwordEncoder().matches(password, user.getPassword())) {
                     return new UsernamePasswordAuthenticationToken(username, password, user.getAuthorities());
                 } else {
-                    throw new AuthenticationException("Invalid credentials") {};
+                    throw new AuthenticationException("Invalid credentials") {}; // Throw authentication error
                 }
             }
 
@@ -92,16 +116,26 @@ public class SecurityConfig {
         };
     }
 
+    /**
+     * Defines a password encoder using BCrypt.
+     * BCrypt is recommended for securely hashing passwords.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * JWT Decoder - responsible for verifying JWT tokens using RSA public key.
+     */
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
+    /**
+     * JWT Encoder - generates signed JWT tokens using RSA private key.
+     */
     @Bean
     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
