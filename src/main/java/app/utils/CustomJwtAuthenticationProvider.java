@@ -32,23 +32,29 @@ public class CustomJwtAuthenticationProvider implements AuthenticationProvider {
         }
 
         String tokenValue = jwtToken.getToken().getTokenValue();
-        LOGGER.info("🔹 Authenticating token: {}", tokenValue);
-
         boolean revoked = tokenService.isTokenRevoked(tokenValue);
         boolean expired = tokenService.isTokenExpired(tokenValue);
+
         LOGGER.debug("🔹 Revocation/Expiration check -> Token: {}, Revoked: {}, Expired: {}", tokenValue, revoked, expired);
 
         if (revoked || expired) {
-            LOGGER.warn("❌ Authentication blocked: Token is revoked or expired - {}", tokenValue);
             LOGGER.error("🚨 SECURITY ALERT: Revoked/Expired token {} attempted authentication!", tokenValue);
 
-            SecurityContextHolder.clearContext(); // ✅ Ensure authentication removal before rejection
-            throw new BadCredentialsException("Token is invalid (revoked or expired)");
+            SecurityContextHolder.clearContext(); // ✅ FULLY removes authentication
+            throw new BadCredentialsException("Token is revoked or expired"); // ✅ Blocks authentication at source
+        }
+
+        Authentication authResult = jwtAuthProvider.authenticate(jwtToken);
+
+        if (authResult == null) {
+            LOGGER.error("❌ Authentication failed for token: {}", tokenValue);
+            throw new BadCredentialsException("Invalid authentication attempt");
         }
 
         LOGGER.info("✅ Token is valid, proceeding with authentication: {}", tokenValue);
-        return jwtAuthProvider.authenticate(jwtToken);
+        return authResult;
     }
+
 
     @Override
     public boolean supports(Class<?> authentication) {
