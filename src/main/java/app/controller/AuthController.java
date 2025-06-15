@@ -9,6 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 public class AuthController {
 
@@ -28,12 +30,23 @@ public class AuthController {
         );
 
         LOGGER.debug("Login request for {}", loginRequest.getName());
-        String token = tokenService.generateToken(authentication);
+        String token = tokenService.generateAccessToken(authentication);
         LOGGER.debug("Token granted: {}", token);
 
         return token;
     }
 
+    @PostMapping("/logout")
+    public Map<String, String> logout(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7); // Remove "Bearer " prefix
+        }
+
+        tokenService.revokeToken(token); // Add token to blacklist
+        return Map.of("message", "Logged out successfully");
+    }
+
     //AUTHER VIDEO
     //https://youtu.be/0GGFZdYe-FY?si=mUbBmaPqdtmXNvIr
 }
+
