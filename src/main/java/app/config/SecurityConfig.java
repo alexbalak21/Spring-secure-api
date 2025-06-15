@@ -2,18 +2,14 @@ package app.config;
 
 import app.security.JwtRevocationFilter;
 import app.service.TokenService;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.source.*;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,18 +17,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.*;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Set;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -47,7 +43,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        LOGGER.info("Initializing in-memory user store...");
+        LOGGER.info("🔹 Initializing in-memory user store...");
         return new InMemoryUserDetailsManager(
                 User.withUsername("alex")
                         .password(passwordEncoder().encode("azerty123"))
@@ -70,6 +66,8 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
+                            LOGGER.info("🔹 Processing logout request...");
+
                             if (authentication == null) {
                                 LOGGER.warn("⚠️ Logout handler: No authentication found. Trying manual extraction...");
                                 String authHeader = request.getHeader("Authorization");
@@ -78,22 +76,29 @@ public class SecurityConfig {
                                     try {
                                         Jwt decodedJwt = jwtDecoder().decode(token);
                                         authentication = new JwtAuthenticationToken(decodedJwt);
-                                        SecurityContextHolder.getContext().setAuthentication(authentication);
                                         LOGGER.info("✅ Authentication manually set for logout: {}", authentication.getName());
                                     } catch (Exception e) {
-                                        LOGGER.warn("❌ Failed to decode token: {}", e.getMessage());
+                                        LOGGER.error("❌ Failed to decode token: {}", e.getMessage());
                                     }
                                 }
                             }
+
                             if (authentication != null) {
                                 LOGGER.info("🔹 Logging out user: {}", authentication.getName());
-                                tokenService.revokeToken(authentication.getCredentials().toString());
+                                String token = authentication.getCredentials().toString();
+                                if (!tokenService.isTokenRevoked(token)) {
+                                    tokenService.revokeToken(token);
+                                    LOGGER.info("✅ Token successfully revoked: {}", token);
+                                } else {
+                                    LOGGER.warn("❌ Token already revoked: {}", token);
+                                }
+                                SecurityContextHolder.clearContext(); // ✅ Ensures full logout
                             }
                         })
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(200);
-                            response.getWriter().write("{\"message\": \"Logged out successfully\"}");
+                            response.setStatus(HttpServletResponse.SC_OK);
                             response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Logged out successfully\"}");
                         })
                         .permitAll()
                 )
@@ -102,11 +107,13 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        LOGGER.info("Initializing AuthenticationManager...");
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        LOGGER.info("🔹 Initializing AuthenticationManager...");
+
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(); // Deprecated DaoAuthenticationProvider()
+        authProvider.setUserDetailsService(userDetailsService); // Deprecated setUserDetailsService()
         authProvider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(authProvider);
+
+        return new ProviderManager(List.of(authProvider));
     }
 
     @Bean
@@ -116,13 +123,13 @@ public class SecurityConfig {
 
     @Bean
     JwtDecoder jwtDecoder() {
-        LOGGER.info("Initializing JWT Decoder...");
+        LOGGER.info("🔹 Initializing JWT Decoder...");
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
     @Bean
     JwtEncoder jwtEncoder() {
-        LOGGER.info("Initializing JWT Encoder...");
+        LOGGER.info("🔹 Initializing JWT Encoder...");
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwkSource);

@@ -77,12 +77,12 @@ public class TokenService {
      */
     public void revokeToken(String token) {
         LOGGER.info("🔹 Attempting to revoke token: {}", token);
-        if (token != null && !token.isEmpty()) {
-            revokedTokens.add(token);
-            LOGGER.warn("❌ Token successfully added to blacklist: {}", token);
-        } else {
+        if (token == null || token.isEmpty()) {
             LOGGER.error("⚠️ Attempted to revoke an empty or null token.");
+            return;
         }
+        revokedTokens.add(token);
+        LOGGER.warn("❌ Token successfully added to blacklist: {}", token);
     }
 
     /**
@@ -120,6 +120,10 @@ public class TokenService {
      * Validates a token by checking both expiration and revocation status.
      */
     public boolean isTokenValid(String token) {
+        if (token == null || token.isEmpty()) {
+            LOGGER.error("⚠️ Attempted validation with empty or null token.");
+            return false;
+        }
         boolean expired = isTokenExpired(token);
         boolean revoked = isTokenRevoked(token);
         boolean valid = !expired && !revoked;
