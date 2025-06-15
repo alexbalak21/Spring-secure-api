@@ -6,6 +6,14 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWxleCIsI
 {
 }
 
+### LOGOUT
+POST http://localhost:8080/auth/logout
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWxleCIsImV4cCI6MTc1MDAxMDMwMiwiaWF0IjoxNzUwMDA2NzAyLCJzY29wZSI6IlJPTEVfVVNFUiJ9.ffbVRZga7cSZ9jqDurWLfPsjarvNVg4lY5gb5Lar5Qp07tY5wTdKW1NKEEsno-dgqtt5nOYEUSGCVidfVV0oEl6S05RhNGAY9g6kJXBtGXQqYgvbEVZYCfl5x4a2yccpyecM-8Ei6n_ovQ2RYw2oeVFSwot4krhCvoKZH3KE8aMhjn2vTcnkHhGOTFvfyiVhgpd4aiPRzzg57De1UQD74XEd-jX1jW4wZY1hKACyQ7FVbdbqO3xG2JF_4W6KT_TJGlnq8h0TZDqFHm2qQL2Brcd43dX2tvlhW5QNznXpOhpluJY3lnpCM0i-U93Dr0_W8McggK0k2ydWkW9j7wsEeA
+
+{
+}
+
 
 ### Request Profile
 GET http://localhost:8080/profile
@@ -17,13 +25,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWxleCIsI
 
 
 
-### LOGOUT
-POST http://localhost:8080/auth/logout
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoiYWxleCIsImV4cCI6MTc1MDAxMDMwMiwiaWF0IjoxNzUwMDA2NzAyLCJzY29wZSI6IlJPTEVfVVNFUiJ9.ffbVRZga7cSZ9jqDurWLfPsjarvNVg4lY5gb5Lar5Qp07tY5wTdKW1NKEEsno-dgqtt5nOYEUSGCVidfVV0oEl6S05RhNGAY9g6kJXBtGXQqYgvbEVZYCfl5x4a2yccpyecM-8Ei6n_ovQ2RYw2oeVFSwot4krhCvoKZH3KE8aMhjn2vTcnkHhGOTFvfyiVhgpd4aiPRzzg57De1UQD74XEd-jX1jW4wZY1hKACyQ7FVbdbqO3xG2JF_4W6KT_TJGlnq8h0TZDqFHm2qQL2Brcd43dX2tvlhW5QNznXpOhpluJY3lnpCM0i-U93Dr0_W8McggK0k2ydWkW9j7wsEeA
 
-{
-}
 
 
 ### POST LOGIN

@@ -68,7 +68,7 @@ public class TokenService {
 
         String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims)).getTokenValue();
         LOGGER.info("✅ Refresh token generated for user: {} (expires in {} days)", authentication.getName(), REFRESH_TOKEN_EXPIRATION_DAYS);
-        LOGGER.debug("🔹 Token details: {}", refreshToken);
+        LOGGER.debug("🔹 Refresh token details: {}", refreshToken);
         return refreshToken;
     }
 
@@ -79,9 +79,9 @@ public class TokenService {
         LOGGER.info("🔹 Attempting to revoke token: {}", token);
         if (token != null && !token.isEmpty()) {
             revokedTokens.add(token);
-            LOGGER.warn("❌ Token added to blacklist: {}", token);
+            LOGGER.warn("❌ Token successfully added to blacklist: {}", token);
         } else {
-            LOGGER.error("⚠️ Attempted to revoke an empty or null token");
+            LOGGER.error("⚠️ Attempted to revoke an empty or null token.");
         }
     }
 
@@ -90,7 +90,10 @@ public class TokenService {
      */
     public boolean isTokenRevoked(String token) {
         boolean revoked = token != null && revokedTokens.contains(token);
-        LOGGER.debug("🔹 Checking token revocation status: {} -> {}", token, revoked);
+        LOGGER.debug("🔹 Checking token revocation: {} -> {}", token, revoked);
+        if (revoked) {
+            LOGGER.warn("❌ Token is revoked: {}", token);
+        }
         return revoked;
     }
 
@@ -103,6 +106,9 @@ public class TokenService {
             Instant expirationTime = jwt.getExpiresAt();
             boolean expired = expirationTime == null || expirationTime.isBefore(Instant.now());
             LOGGER.debug("🔹 Checking token expiration: {} -> {}", token, expired);
+            if (expired) {
+                LOGGER.warn("⚠️ Token has expired: {}", token);
+            }
             return expired;
         } catch (JwtException e) {
             LOGGER.error("❌ Failed to decode token: {}", e.getMessage());
@@ -114,8 +120,10 @@ public class TokenService {
      * Validates a token by checking both expiration and revocation status.
      */
     public boolean isTokenValid(String token) {
-        boolean valid = !isTokenExpired(token) && !isTokenRevoked(token);
-        LOGGER.info("🔹 Token validation check: {} -> {}", token, valid);
+        boolean expired = isTokenExpired(token);
+        boolean revoked = isTokenRevoked(token);
+        boolean valid = !expired && !revoked;
+        LOGGER.info("🔹 Token validation result: {} -> Valid: {}, Expired: {}, Revoked: {}", token, valid, expired, revoked);
         return valid;
     }
 }
