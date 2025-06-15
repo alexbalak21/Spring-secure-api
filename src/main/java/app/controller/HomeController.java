@@ -4,12 +4,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 public class HomeController {
 
-    @GetMapping("/")
-    String home(Principal principal) {
-        return "Welcome Home " + principal.getName();
+    @GetMapping
+    public Map<String, String> home(Principal principal) {
+        return Map.of("message", "Welcome to the API", "username", principal.getName());
     }
 }
