@@ -24,7 +24,7 @@ public class CustomJwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws BadCredentialsException {
+    public Authentication authenticate(Authentication authentication) {
         if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
             LOGGER.warn("⚠️ Unsupported authentication type: {}", authentication.getClass().getName());
             return null;

@@ -36,7 +36,7 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
 
         // ✅ Skip token revocation checks for ignored endpoints
         if (ignoredEndpoints.contains(requestPath)) {
-            LOGGER.info("✅ Skipping revocation check for ignored endpoint: {}", requestPath);
+            LOGGER.debug("✅ Skipping revocation check for ignored endpoint: {}", requestPath);
             chain.doFilter(request, response);
             return;
         }
@@ -45,7 +45,7 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
 
         // ✅ If no authentication token is found, proceed
         if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
-            LOGGER.warn("⚠️ No JWT token found, allowing request to proceed.");
+            LOGGER.debug("⚠️ No JWT token found, allowing request to proceed.");
             chain.doFilter(request, response);
             return;
         }
@@ -59,13 +59,13 @@ public class JwtRevocationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Token has been revoked\"}");
-            response.getWriter().flush(); // Ensure response is immediately sent
+            response.getWriter().flush(); // Ensure immediate response
             SecurityContextHolder.clearContext(); // ✅ Clears authentication context to fully revoke access
             LOGGER.error("❌ Token {} was rejected. Response sent with 401 Unauthorized.", tokenValue);
             return;
         }
 
-        LOGGER.info("✅ Token is valid, allowing request to proceed.");
+        LOGGER.debug("✅ Token is valid, allowing request to proceed.");
         chain.doFilter(request, response);
     }
 }
