@@ -18,13 +18,13 @@ public class TokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
     private final JwtEncoder jwtEncoder;
-    private final JwtDecoder jwtDecoder; // Added JwtDecoder for validation
+    private final JwtDecoder jwtDecoder;
     private final Set<String> revokedTokens = ConcurrentHashMap.newKeySet(); // Thread-safe blacklist
 
     private static final int ACCESS_TOKEN_EXPIRATION_MINUTES = 60; // 1 hour
     private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 7; // 7 days
 
-    public TokenService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) { // Inject JwtDecoder
+    public TokenService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
     }
@@ -47,7 +47,8 @@ public class TokenService {
                 .build();
 
         String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-        LOGGER.info("Access token generated for user: {}", authentication.getName());
+        LOGGER.info("✅ Access token generated for user: {} (expires in {} minutes)", authentication.getName(), ACCESS_TOKEN_EXPIRATION_MINUTES);
+        LOGGER.debug("🔹 Token details: {}", token);
         return token;
     }
 
@@ -66,7 +67,8 @@ public class TokenService {
                 .build();
 
         String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims)).getTokenValue();
-        LOGGER.info("Refresh token generated for user: {}", authentication.getName());
+        LOGGER.info("✅ Refresh token generated for user: {} (expires in {} days)", authentication.getName(), REFRESH_TOKEN_EXPIRATION_DAYS);
+        LOGGER.debug("🔹 Token details: {}", refreshToken);
         return refreshToken;
     }
 
@@ -74,12 +76,12 @@ public class TokenService {
      * Revokes a token, adding it to the blacklist.
      */
     public void revokeToken(String token) {
-        LOGGER.info("Revoking token: {}", token);
+        LOGGER.info("🔹 Attempting to revoke token: {}", token);
         if (token != null && !token.isEmpty()) {
             revokedTokens.add(token);
-            LOGGER.info("Token added to blacklist: {}", token);
+            LOGGER.warn("❌ Token added to blacklist: {}", token);
         } else {
-            LOGGER.warn("Attempted to revoke an empty or null token");
+            LOGGER.error("⚠️ Attempted to revoke an empty or null token");
         }
     }
 
@@ -88,7 +90,7 @@ public class TokenService {
      */
     public boolean isTokenRevoked(String token) {
         boolean revoked = token != null && revokedTokens.contains(token);
-        LOGGER.debug("Checking if token is revoked: {} -> {}", token, revoked);
+        LOGGER.debug("🔹 Checking token revocation status: {} -> {}", token, revoked);
         return revoked;
     }
 
@@ -100,10 +102,10 @@ public class TokenService {
             Jwt jwt = jwtDecoder.decode(token);
             Instant expirationTime = jwt.getExpiresAt();
             boolean expired = expirationTime == null || expirationTime.isBefore(Instant.now());
-            LOGGER.debug("Checking if token is expired: {} -> {}", token, expired);
+            LOGGER.debug("🔹 Checking token expiration: {} -> {}", token, expired);
             return expired;
         } catch (JwtException e) {
-            LOGGER.warn("Failed to decode token: {}", e.getMessage());
+            LOGGER.error("❌ Failed to decode token: {}", e.getMessage());
             return true; // Treat invalid JWTs as expired
         }
     }
@@ -113,7 +115,7 @@ public class TokenService {
      */
     public boolean isTokenValid(String token) {
         boolean valid = !isTokenExpired(token) && !isTokenRevoked(token);
-        LOGGER.debug("Checking if token is valid: {} -> {}", token, valid);
+        LOGGER.info("🔹 Token validation check: {} -> {}", token, valid);
         return valid;
     }
 }
