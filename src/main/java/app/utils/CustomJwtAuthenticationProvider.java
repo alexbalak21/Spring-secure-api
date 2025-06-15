@@ -36,6 +36,7 @@ public class CustomJwtAuthenticationProvider implements AuthenticationProvider {
         // ✅ Enforce blacklist check BEFORE authentication succeeds
         if (tokenService.isTokenRevoked(tokenValue)) {
             LOGGER.warn("❌ Authentication blocked: Token has been revoked - {}", tokenValue);
+            LOGGER.error("🚨 Security Breach Attempt: Revoked token {} tried to authenticate!", tokenValue);
             throw new BadCredentialsException("Token has been revoked");
         }
 
