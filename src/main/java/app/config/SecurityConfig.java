@@ -41,6 +41,34 @@ public class SecurityConfig {
         this.rsaKeys = rsaKeyProperties;
     }
 
+    /**
+     * ✅ Explicitly register `UserDetailsService` to fix dependency issue
+     */
+    @Bean
+    public UserDetailsService userDetailsService() {
+        LOGGER.info("🔹 Initializing in-memory user store...");
+        return new InMemoryUserDetailsManager(
+                User.withUsername("alex")
+                        .password(passwordEncoder().encode("azerty123"))
+                        .roles("USER")
+                        .build()
+        );
+    }
+
+    /**
+     * ✅ Fix authentication manager initialization error
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        LOGGER.info("🔹 Initializing AuthenticationManager...");
+
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(List.of(authProvider));
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenService tokenService) throws Exception {
         LOGGER.info("🔹 Configuring security filters...");
@@ -53,8 +81,11 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+
+                // ✅ Ensures revoked tokens are blocked BEFORE authentication happens
                 .addFilterBefore(new JwtRevocationFilter(tokenService, Set.of("/auth/login", "/auth/logout")),
                         BearerTokenAuthenticationFilter.class)
+
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
@@ -97,16 +128,6 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        LOGGER.info("🔹 Initializing AuthenticationManager...");
-
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder);
-        authProvider.setUserDetailsService(userDetailsService);
-
-        return new ProviderManager(List.of(authProvider));
     }
 
     @Bean
